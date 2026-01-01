@@ -1,0 +1,67 @@
+# Xcode
+build/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xccheckout
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+*.xcuserstate
+*.xcworkspace
+!default.xcworkspace
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# CocoaPods
+Pods/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# Python Framework (large file)
+# IMPORTANT: If uploading to GitHub, comment out these lines:
+# Python.xcframework/
+python_temp/
+
+# Distribution archives
+dist/
+*.tar.gz
+*.zip
+
+# iOS Build Artifacts
+ios_build/
+build_frameworks/
+
+# Frameworks - Choose ONE option:
+# Option 1: Upload frameworks to GitHub → Comment out the line below
+# Option 2: Host frameworks externally → Keep the line below uncommented
+# Frameworks/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Manim output
+media/
+videos/
+*.mp4
+*.mov
+*.gif
+*.png
