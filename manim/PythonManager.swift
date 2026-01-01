@@ -49,24 +49,49 @@ public class PythonManager {
         // Try to find Python.framework in various locations
         var pythonLibPath: String?
 
-        // Location 1: Direct framework bundle path
-        if let frameworkPath = Bundle.main.path(forResource: "Python", ofType: "framework", inDirectory: "Frameworks/Python.xcframework/\(platformPath)") {
-            pythonLibPath = "\(frameworkPath)/Python"
-            print("[PythonManager] Found Python in Frameworks/")
-        }
-        // Location 2: Main bundle resources
-        else if let resourcePath = Bundle.main.resourcePath {
-            let altPaths = [
-                "\(resourcePath)/Python.xcframework/\(platformPath)/Python.framework/Python",
-                "\(resourcePath)/Frameworks/Python.xcframework/\(platformPath)/Python.framework/Python",
-                "\(resourcePath)/Manim_Manim.bundle/Python.xcframework/\(platformPath)/Python.framework/Python"
-            ]
+        // For Swift Package Manager, resources are in a different location
+        // Try module bundle first (for SPM)
+        let moduleName = "Manim_Manim"
+        if let bundlePath = Bundle.main.path(forResource: moduleName, ofType: "bundle"),
+           let bundle = Bundle(path: bundlePath) {
+            print("[PythonManager] Found SPM bundle: \(bundlePath)")
 
-            for path in altPaths {
-                if FileManager.default.fileExists(atPath: path) {
-                    pythonLibPath = path
-                    print("[PythonManager] Found Python in main bundle at: \(path)")
-                    break
+            // Try to find Python.xcframework in the bundle
+            if let resourcePath = bundle.resourcePath {
+                let spmPaths = [
+                    "\(resourcePath)/Python.xcframework/\(platformPath)/Python.framework/Python",
+                    "\(bundlePath)/Python.xcframework/\(platformPath)/Python.framework/Python"
+                ]
+
+                for path in spmPaths {
+                    if FileManager.default.fileExists(atPath: path) {
+                        pythonLibPath = path
+                        print("[PythonManager] Found Python in SPM bundle at: \(path)")
+                        break
+                    }
+                }
+            }
+        }
+
+        // If not found in SPM bundle, try main bundle locations
+        if pythonLibPath == nil {
+            if let frameworkPath = Bundle.main.path(forResource: "Python", ofType: "framework", inDirectory: "Frameworks/Python.xcframework/\(platformPath)") {
+                pythonLibPath = "\(frameworkPath)/Python"
+                print("[PythonManager] Found Python in Frameworks/")
+            }
+            else if let resourcePath = Bundle.main.resourcePath {
+                let altPaths = [
+                    "\(resourcePath)/Python.xcframework/\(platformPath)/Python.framework/Python",
+                    "\(resourcePath)/Frameworks/Python.xcframework/\(platformPath)/Python.framework/Python",
+                    "\(resourcePath)/\(moduleName).bundle/Python.xcframework/\(platformPath)/Python.framework/Python"
+                ]
+
+                for path in altPaths {
+                    if FileManager.default.fileExists(atPath: path) {
+                        pythonLibPath = path
+                        print("[PythonManager] Found Python in main bundle at: \(path)")
+                        break
+                    }
                 }
             }
         }
@@ -83,6 +108,16 @@ public class PythonManager {
                 print("[PythonManager] Resource path: \(resourcePath)")
                 if let contents = try? FileManager.default.contentsOfDirectory(atPath: resourcePath) {
                     print("[PythonManager] Bundle contents: \(contents.prefix(10))")
+                }
+            }
+
+            // Also check SPM bundle
+            if let bundlePath = Bundle.main.path(forResource: moduleName, ofType: "bundle"),
+               let bundle = Bundle(path: bundlePath),
+               let bundleResourcePath = bundle.resourcePath {
+                print("[PythonManager] SPM bundle resource path: \(bundleResourcePath)")
+                if let bundleContents = try? FileManager.default.contentsOfDirectory(atPath: bundleResourcePath) {
+                    print("[PythonManager] SPM bundle contents: \(bundleContents.prefix(20))")
                 }
             }
         }
